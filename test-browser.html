@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SysML v2 Tools - Browser Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .test {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    .pass { background: #d4edda; border-color: #c3e6cb; }
+    .fail { background: #f8d7da; border-color: #f5c6cb; }
+    .info { background: #d1ecf1; border-color: #bee5eb; }
+    pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>SysML v2 Tools - Browser Diagnostic</h1>
+  <p>This page tests if the SysML v2 modules are loading correctly.</p>
+
+  <div id="results"></div>
+
+  <script src="lexer.js"></script>
+  <script src="parser.js"></script>
+  <script src="generator.js"></script>
+
+  <script>
+    const results = document.getElementById('results');
+
+    function addResult(title, passed, message) {
+      const div = document.createElement('div');
+      div.className = 'test ' + (passed ? 'pass' : 'fail');
+      div.innerHTML = `<strong>${passed ? '✓' : '✗'} ${title}</strong><br>${message}`;
+      results.appendChild(div);
+    }
+
+    function addInfo(title, message) {
+      const div = document.createElement('div');
+      div.className = 'test info';
+      div.innerHTML = `<strong>ℹ️ ${title}</strong><br>${message}`;
+      results.appendChild(div);
+    }
+
+    // Test 1: Check if Lexer is defined
+    addResult('Lexer Module', typeof Lexer !== 'undefined',
+      typeof Lexer !== 'undefined' ? 'Lexer class is available' : 'Lexer class is NOT available');
+
+    // Test 2: Check if Parser is defined
+    addResult('Parser Module', typeof Parser !== 'undefined',
+      typeof Parser !== 'undefined' ? 'Parser class is available' : 'Parser class is NOT available');
+
+    // Test 3: Check if Generator is defined
+    addResult('Generator Module', typeof Generator !== 'undefined',
+      typeof Generator !== 'undefined' ? 'Generator class is available' : 'Generator class is NOT available');
+
+    // Test 4: Try to create instances
+    if (typeof Lexer !== 'undefined' && typeof Parser !== 'undefined' && typeof Generator !== 'undefined') {
+      try {
+        const lexer = new Lexer('part def Test;', 'test.sysml');
+        const tokens = lexer.tokenize();
+        addResult('Lexer Instantiation', true, `Successfully created Lexer and generated ${tokens.length} tokens`);
+
+        const parser = new Parser(tokens);
+        const ast = parser.parse();
+        addResult('Parser Instantiation', true, `Successfully created Parser and generated AST with ${ast.elements.length} element(s)`);
+
+        const generator = new Generator();
+        const output = generator.generate(ast);
+        addResult('Generator Instantiation', true, `Successfully created Generator. Output: <pre>${output}</pre>`);
+
+        addResult('Full Pipeline', true, 'All modules working correctly! ✨');
+      } catch (error) {
+        addResult('Module Instantiation', false, `Error: ${error.message}<br><pre>${error.stack}</pre>`);
+      }
+    }
+
+    // Check loading method
+    const protocol = window.location.protocol;
+    if (protocol === 'file:') {
+      addInfo('Loading Method',
+        `⚠️ You are using <strong>file://</strong> protocol. This may cause CORS errors in some browsers.<br><br>
+        <strong>Recommended:</strong> Use a web server instead:<br>
+        <code>node serve.js</code> then open <code>http://localhost:8080</code>`);
+    } else {
+      addInfo('Loading Method',
+        `✓ You are using <strong>${protocol}</strong> protocol. This is the correct way to load the page.`);
+    }
+
+    // Browser info
+    addInfo('Browser Information',
+      `User Agent: ${navigator.userAgent}<br>
+      URL: ${window.location.href}`);
+  </script>
+</body>
+</html>

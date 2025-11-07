@@ -53,6 +53,10 @@ An interactive web interface is provided for easy visualization and testing.
 
 ### Local Usage
 
+**⚠️ Important:** Do NOT open `index.html` directly by double-clicking (file:// protocol causes CORS errors).
+
+**Use the web server:**
+
 ```bash
 # Start the local web server
 node serve.js
@@ -63,7 +67,10 @@ node serve.js 3000
 
 Then open your browser to `http://localhost:8080` (or your custom port).
 
-You can also open `index.html` directly in your browser (works without a server).
+**Troubleshooting:**
+- If you get "undefined is not a constructor" errors, you're likely opening the file directly
+- Always use the web server (`node serve.js`) for local testing
+- Or use the diagnostic page: `test-browser.html` (must also be served via web server)
 
 ### GitHub Pages Deployment
 

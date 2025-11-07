@@ -212,6 +212,14 @@
       <p class="subtitle">Interactive demonstration of lexical analysis, parsing, and code generation</p>
     </header>
 
+    <div id="fileProtocolWarning" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-bottom: 20px; color: #856404;">
+      <strong>⚠️ Warning:</strong> You are opening this page using <code>file://</code> protocol.
+      This may cause JavaScript modules to fail loading due to browser security (CORS) restrictions.
+      <br><br>
+      <strong>Solution:</strong> Run <code>node serve.js</code> and open <code>http://localhost:8080</code>
+      <br>Or deploy to GitHub Pages for public access.
+    </div>
+
     <div class="controls">
       <div class="button-group">
         <button onclick="processCode()">🚀 Process Code</button>
@@ -268,6 +276,20 @@
   <script src="parser.js"></script>
   <script src="generator.js"></script>
   <script>
+    // Check if modules loaded correctly
+    if (typeof Lexer === 'undefined') {
+      console.error('Lexer not loaded!');
+      alert('Error: Lexer module failed to load. Check browser console.');
+    }
+    if (typeof Parser === 'undefined') {
+      console.error('Parser not loaded!');
+      alert('Error: Parser module failed to load. Check browser console.');
+    }
+    if (typeof Generator === 'undefined') {
+      console.error('Generator not loaded!');
+      alert('Error: Generator module failed to load. Check browser console.');
+    }
+
     // Example SysML v2 code
     const exampleCode = `package VehicleExample {
 
@@ -345,6 +367,15 @@
         return;
       }
 
+      // Check if classes are available
+      if (typeof Lexer === 'undefined' || typeof Parser === 'undefined' || typeof Generator === 'undefined') {
+        const errorMsg = 'Required modules not loaded. Please ensure lexer.js, parser.js, and generator.js are loaded correctly.';
+        document.getElementById('ast').innerHTML = `<div class="error">${errorMsg}<br><br>Missing: ${typeof Lexer === 'undefined' ? 'Lexer ' : ''}${typeof Parser === 'undefined' ? 'Parser ' : ''}${typeof Generator === 'undefined' ? 'Generator' : ''}</div>`;
+        document.getElementById('output').innerHTML = `<div class="error">${errorMsg}</div>`;
+        console.error('Module check:', { Lexer: typeof Lexer, Parser: typeof Parser, Generator: typeof Generator });
+        return;
+      }
+
       try {
         const startTime = performance.now();
 
@@ -414,6 +445,11 @@
           }, 2000);
         });
       }
+    }
+
+    // Check if using file:// protocol and show warning
+    if (window.location.protocol === 'file:') {
+      document.getElementById('fileProtocolWarning').style.display = 'block';
     }
 
     // Load example on page load

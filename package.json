@@ -1,0 +1,25 @@
+{
+  "name": "sysml-v2-tools",
+  "version": "1.0.0",
+  "description": "SysML v2 Lexer, Parser, and Code Generator for JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "example": "node example.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "sysml",
+    "sysml-v2",
+    "lexer",
+    "parser",
+    "code-generator",
+    "ast",
+    "systems-modeling",
+    "mbse"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}

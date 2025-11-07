@@ -4,16 +4,12 @@
  */
 
 // Import lexer if using as module (Node.js)
-let Lexer, Token;
-if (typeof require !== 'undefined') {
-  try {
-    const lexerModule = require('./lexer.js');
-    Lexer = lexerModule.Lexer;
-    Token = lexerModule.Token;
-  } catch (e) {
-    // In browser, classes will be available globally
-  }
+// In browser, Lexer and Token will be available as globals from lexer.js
+if (typeof require !== 'undefined' && typeof window === 'undefined') {
+  // Node.js environment
+  var { Lexer, Token } = require('./lexer.js');
 }
+// In browser, Lexer and Token are already global from lexer.js loading first
 
 // AST Node Types
 class ASTNode {

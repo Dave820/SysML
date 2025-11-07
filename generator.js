@@ -4,14 +4,12 @@
  */
 
 // Import parser AST nodes if using as module (Node.js)
-let Parser;
-if (typeof require !== 'undefined') {
-  try {
-    Parser = require('./parser.js');
-  } catch (e) {
-    // In browser, classes will be available globally
-  }
+// In browser, Parser and AST node types will be available as globals from parser.js
+if (typeof require !== 'undefined' && typeof window === 'undefined') {
+  // Node.js environment
+  var Parser = require('./parser.js');
 }
+// In browser, all classes are already global from previous script loads
 
 class Generator {
   constructor(options = {}) {

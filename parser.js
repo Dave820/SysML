@@ -3,14 +3,6 @@
  * Generates an Abstract Syntax Tree (AST) from tokens produced by the lexer.
  */
 
-// Import lexer if using as module (Node.js)
-// In browser, Lexer and Token will be available as globals from lexer.js
-if (typeof require !== 'undefined' && typeof window === 'undefined') {
-  // Node.js environment
-  var { Lexer, Token } = require('./lexer.js');
-}
-// In browser, Lexer and Token are already global from lexer.js loading first
-
 // AST Node Types
 class ASTNode {
   constructor(type, location) {

@@ -3,14 +3,6 @@
  * Generates SysML v2 source code from an Abstract Syntax Tree (AST).
  */
 
-// Import parser AST nodes if using as module (Node.js)
-// In browser, Parser and AST node types will be available as globals from parser.js
-if (typeof require !== 'undefined' && typeof window === 'undefined') {
-  // Node.js environment
-  var Parser = require('./parser.js');
-}
-// In browser, all classes are already global from previous script loads
-
 class Generator {
   constructor(options = {}) {
     this.indentSize = options.indentSize || 2;

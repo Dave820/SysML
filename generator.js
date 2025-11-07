@@ -3,10 +3,14 @@
  * Generates SysML v2 source code from an Abstract Syntax Tree (AST).
  */
 
-// Import parser AST nodes if using as module
+// Import parser AST nodes if using as module (Node.js)
 let Parser;
 if (typeof require !== 'undefined') {
-  Parser = require('./parser.js');
+  try {
+    Parser = require('./parser.js');
+  } catch (e) {
+    // In browser, classes will be available globally
+  }
 }
 
 class Generator {
@@ -440,4 +444,9 @@ class Generator {
 // Export for Node.js module usage
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { Generator };
+}
+
+// Export for browser usage
+if (typeof window !== 'undefined') {
+  window.Generator = Generator;
 }

@@ -3,12 +3,16 @@
  * Generates an Abstract Syntax Tree (AST) from tokens produced by the lexer.
  */
 
-// Import lexer if using as module
+// Import lexer if using as module (Node.js)
 let Lexer, Token;
 if (typeof require !== 'undefined') {
-  const lexerModule = require('./lexer.js');
-  Lexer = lexerModule.Lexer;
-  Token = lexerModule.Token;
+  try {
+    const lexerModule = require('./lexer.js');
+    Lexer = lexerModule.Lexer;
+    Token = lexerModule.Token;
+  } catch (e) {
+    // In browser, classes will be available globally
+  }
 }
 
 // AST Node Types
@@ -732,4 +736,28 @@ if (typeof module !== 'undefined' && module.exports) {
     Literal,
     QualifiedName
   };
+}
+
+// Export for browser usage
+if (typeof window !== 'undefined') {
+  window.Parser = Parser;
+  window.ASTNode = ASTNode;
+  window.Program = Program;
+  window.PackageDeclaration = PackageDeclaration;
+  window.PartDefinition = PartDefinition;
+  window.PartUsage = PartUsage;
+  window.AttributeDefinition = AttributeDefinition;
+  window.AttributeUsage = AttributeUsage;
+  window.PortDefinition = PortDefinition;
+  window.PortUsage = PortUsage;
+  window.ConnectionDefinition = ConnectionDefinition;
+  window.ConnectionUsage = ConnectionUsage;
+  window.InterfaceDefinition = InterfaceDefinition;
+  window.ActionDefinition = ActionDefinition;
+  window.ActionUsage = ActionUsage;
+  window.Specialization = Specialization;
+  window.ImportStatement = ImportStatement;
+  window.Comment = Comment;
+  window.Literal = Literal;
+  window.QualifiedName = QualifiedName;
 }

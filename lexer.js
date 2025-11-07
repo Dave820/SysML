@@ -372,3 +372,10 @@ class Lexer {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { Lexer, Token, SourceLocation };
 }
+
+// Export for browser usage
+if (typeof window !== 'undefined') {
+  window.Lexer = Lexer;
+  window.Token = Token;
+  window.SourceLocation = SourceLocation;
+}

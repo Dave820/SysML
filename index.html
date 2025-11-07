@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SysML v2 Lexer, Parser & Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .controls {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      max-height: 700px;
+    }
+
+    .panel-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 20px;
+      font-weight: 600;
+      font-size: 1.1em;
+    }
+
+    .panel-content {
+      padding: 20px;
+      flex: 1;
+      overflow: auto;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .editable {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 6px;
+      padding: 15px;
+      min-height: 300px;
+      white-space: pre-wrap;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      outline: none;
+      resize: vertical;
+    }
+
+    .editable:focus {
+      border-color: #667eea;
+      background: white;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+    }
+
+    .stats {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .error {
+      background: #fee;
+      border-left: 4px solid #f44;
+      padding: 15px;
+      border-radius: 6px;
+      color: #c00;
+      font-weight: 500;
+    }
+
+    .success {
+      background: #efe;
+      border-left: 4px solid #4a4;
+      padding: 15px;
+      border-radius: 6px;
+      color: #060;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+
+    .ast-content {
+      font-size: 12px;
+    }
+
+    .keyword { color: #0000ff; font-weight: bold; }
+    .comment { color: #008000; font-style: italic; }
+    .string { color: #a31515; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔧 SysML v2 Lexer, Parser & Code Generator</h1>
+      <p class="subtitle">Interactive demonstration of lexical analysis, parsing, and code generation</p>
+    </header>
+
+    <div class="controls">
+      <div class="button-group">
+        <button onclick="processCode()">🚀 Process Code</button>
+        <button onclick="loadExample()">📝 Load Example</button>
+        <button onclick="clearAll()">🗑️ Clear All</button>
+        <button onclick="copyOutput()">📋 Copy Output</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="panel-header">📄 Input SysML v2 Code</div>
+        <div class="panel-content">
+          <textarea class="editable" id="input" placeholder="Enter your SysML v2 code here..."></textarea>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">🌳 Abstract Syntax Tree (AST)</div>
+        <div class="panel-content ast-content">
+          <pre id="ast">Click "Process Code" to see the AST...</pre>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">✨ Generated SysML v2 Code</div>
+        <div class="panel-content">
+          <pre id="output">Click "Process Code" to see the generated output...</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats" id="stats" style="display: none;">
+      <div class="stat">
+        <div class="stat-label">Tokens Generated</div>
+        <div class="stat-value" id="tokenCount">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">AST Nodes</div>
+        <div class="stat-value" id="nodeCount">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Processing Time</div>
+        <div class="stat-value" id="processTime">0ms</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Round-trip Status</div>
+        <div class="stat-value" id="roundTrip">-</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="lexer.js"></script>
+  <script src="parser.js"></script>
+  <script src="generator.js"></script>
+  <script>
+    // Example SysML v2 code
+    const exampleCode = `package VehicleExample {
+
+  // Import standard library
+  import ISQ::*;
+
+  // Define a vehicle part with attributes
+  part def Vehicle {
+    attribute mass : ISQ::mass;
+    attribute length : ISQ::length;
+
+    port powerPort : PowerInterface;
+  }
+
+  // Define an engine part
+  part def Engine :> Vehicle {
+    attribute horsepower : ISQ::power;
+    attribute fuelType : String = "gasoline";
+  }
+
+  // Port interface definition
+  port def PowerInterface;
+
+  // Connection definition
+  connection def PowerConnection;
+
+  // Action definition
+  action def StartEngine;
+
+  // Concrete vehicle usage
+  part myVehicle : Vehicle {
+    part engine : Engine;
+  }
+}`;
+
+    function loadExample() {
+      document.getElementById('input').value = exampleCode;
+      processCode();
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('ast').textContent = 'Click "Process Code" to see the AST...';
+      document.getElementById('output').textContent = 'Click "Process Code" to see the generated output...';
+      document.getElementById('stats').style.display = 'none';
+    }
+
+    function countNodes(node) {
+      if (!node || typeof node !== 'object') return 0;
+
+      let count = 1;
+
+      for (const key in node) {
+        if (node.hasOwnProperty(key)) {
+          const value = node[key];
+          if (Array.isArray(value)) {
+            value.forEach(item => {
+              count += countNodes(item);
+            });
+          } else if (typeof value === 'object' && value !== null && value.nodeType) {
+            count += countNodes(value);
+          }
+        }
+      }
+
+      return count;
+    }
+
+    function processCode() {
+      const inputCode = document.getElementById('input').value;
+
+      if (!inputCode.trim()) {
+        document.getElementById('ast').innerHTML = '<div class="error">Please enter some SysML v2 code first!</div>';
+        document.getElementById('output').innerHTML = '<div class="error">Please enter some SysML v2 code first!</div>';
+        return;
+      }
+
+      try {
+        const startTime = performance.now();
+
+        // Step 1: Lexical Analysis
+        const lexer = new Lexer(inputCode, 'input.sysml');
+        const tokens = lexer.tokenize();
+
+        // Step 2: Parse
+        const parser = new Parser(tokens);
+        const ast = parser.parse();
+
+        // Step 3: Generate
+        const generator = new Generator({ indentSize: 2 });
+        const output = generator.generate(ast);
+
+        const endTime = performance.now();
+        const processTime = (endTime - startTime).toFixed(2);
+
+        // Display AST
+        const astJson = JSON.stringify(ast, null, 2);
+        document.getElementById('ast').textContent = astJson;
+
+        // Display output
+        document.getElementById('output').textContent = output;
+
+        // Update stats
+        document.getElementById('tokenCount').textContent = tokens.length;
+        document.getElementById('nodeCount').textContent = countNodes(ast);
+        document.getElementById('processTime').textContent = processTime + 'ms';
+
+        // Round-trip test
+        try {
+          const lexer2 = new Lexer(output, 'output.sysml');
+          const tokens2 = lexer2.tokenize();
+          const parser2 = new Parser(tokens2);
+          const ast2 = parser2.parse();
+          const generator2 = new Generator({ indentSize: 2 });
+          const output2 = generator2.generate(ast2);
+
+          const roundTripSuccess = output === output2;
+          document.getElementById('roundTrip').textContent = roundTripSuccess ? '✓' : '✗';
+          document.getElementById('roundTrip').style.color = roundTripSuccess ? '#4a4' : '#f44';
+        } catch (e) {
+          document.getElementById('roundTrip').textContent = '✗';
+          document.getElementById('roundTrip').style.color = '#f44';
+        }
+
+        document.getElementById('stats').style.display = 'flex';
+
+      } catch (error) {
+        document.getElementById('ast').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        document.getElementById('output').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        console.error(error);
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output').textContent;
+
+      if (output && !output.includes('Click "Process Code"')) {
+        navigator.clipboard.writeText(output).then(() => {
+          const btn = event.target;
+          const originalText = btn.textContent;
+          btn.textContent = '✓ Copied!';
+          setTimeout(() => {
+            btn.textContent = originalText;
+          }, 2000);
+        });
+      }
+    }
+
+    // Load example on page load
+    window.addEventListener('load', () => {
+      loadExample();
+    });
+  </script>
+</body>
+</html>

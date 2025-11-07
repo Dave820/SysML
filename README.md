@@ -47,6 +47,28 @@ No external dependencies required. All modules are pure JavaScript.
 # - generator.js
 ```
 
+## Web Interface
+
+An interactive web interface is provided for easy visualization and testing:
+
+```bash
+# Start the local web server
+node serve.js
+
+# Or specify a custom port
+node serve.js 3000
+```
+
+Then open your browser to `http://localhost:8080` (or your custom port).
+
+The web interface displays:
+- **Input Panel**: Enter or edit SysML v2 code
+- **AST Panel**: View the generated Abstract Syntax Tree in JSON format
+- **Output Panel**: See the reconstructed SysML v2 code
+- **Statistics**: Token count, AST node count, processing time, and round-trip validation
+
+You can also open `index.html` directly in your browser (works without a server).
+
 ## Usage
 
 ### Basic Example

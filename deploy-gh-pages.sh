@@ -24,6 +24,7 @@ echo "   Using temp directory: $TEMP_DIR"
 
 # Copy necessary files to temp directory
 cp index.html "$TEMP_DIR/"
+cp test-browser.html "$TEMP_DIR/"
 cp lexer.js "$TEMP_DIR/"
 cp parser.js "$TEMP_DIR/"
 cp generator.js "$TEMP_DIR/"

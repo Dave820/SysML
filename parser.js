@@ -740,6 +740,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Export for browser usage
 if (typeof window !== 'undefined') {
+  console.log('Parser.js: Exporting to window object');
   window.Parser = Parser;
   window.ASTNode = ASTNode;
   window.Program = Program;
@@ -760,4 +761,5 @@ if (typeof window !== 'undefined') {
   window.Comment = Comment;
   window.Literal = Literal;
   window.QualifiedName = QualifiedName;
+  console.log('Parser.js: Export complete. Parser type:', typeof window.Parser);
 }

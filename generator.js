@@ -448,5 +448,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Export for browser usage
 if (typeof window !== 'undefined') {
+  console.log('Generator.js: Exporting to window object');
   window.Generator = Generator;
+  console.log('Generator.js: Export complete. Generator type:', typeof window.Generator);
 }

@@ -375,7 +375,9 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Export for browser usage
 if (typeof window !== 'undefined') {
+  console.log('Lexer.js: Exporting to window object');
   window.Lexer = Lexer;
   window.Token = Token;
   window.SourceLocation = SourceLocation;
+  console.log('Lexer.js: Export complete. Lexer type:', typeof window.Lexer);
 }

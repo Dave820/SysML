@@ -100,6 +100,12 @@ class Generator {
       case 'ActionUsage':
         this.generateActionUsage(node);
         break;
+      case 'RequirementDefinition':
+        this.generateRequirementDefinition(node);
+        break;
+      case 'RequirementUsage':
+        this.generateRequirementUsage(node);
+        break;
       default:
         throw new Error(`Unknown element type: ${node.nodeType}`);
     }
@@ -349,6 +355,50 @@ class Generator {
 
   generateActionUsage(node) {
     let line = 'action';
+
+    if (node.name) {
+      line += ' ' + node.name;
+    }
+
+    if (node.type) {
+      line += ' : ' + this.generateQualifiedName(node.type);
+    }
+
+    if (node.specializations.length > 0) {
+      line += ' ' + this.generateSpecializations(node.specializations);
+    }
+
+    if (node.body.length > 0) {
+      this.writeLine(line + ' {');
+      this.indent();
+      this.generateBody(node.body);
+      this.dedent();
+      this.writeLine('}');
+    } else {
+      this.writeLine(line + ';');
+    }
+  }
+
+  generateRequirementDefinition(node) {
+    let line = 'requirement def ' + node.name;
+
+    if (node.specializations.length > 0) {
+      line += ' ' + this.generateSpecializations(node.specializations);
+    }
+
+    if (node.body.length > 0) {
+      this.writeLine(line + ' {');
+      this.indent();
+      this.generateBody(node.body);
+      this.dedent();
+      this.writeLine('}');
+    } else {
+      this.writeLine(line + ';');
+    }
+  }
+
+  generateRequirementUsage(node) {
+    let line = 'requirement';
 
     if (node.name) {
       line += ' ' + node.name;

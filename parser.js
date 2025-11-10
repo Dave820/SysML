@@ -133,6 +133,25 @@ class ActionUsage extends ASTNode {
   }
 }
 
+class RequirementDefinition extends ASTNode {
+  constructor(name, specializations, body, location) {
+    super('RequirementDefinition', location);
+    this.name = name;
+    this.specializations = specializations;
+    this.body = body;
+  }
+}
+
+class RequirementUsage extends ASTNode {
+  constructor(name, type, specializations, body, location) {
+    super('RequirementUsage', location);
+    this.name = name;
+    this.type = type;
+    this.specializations = specializations;
+    this.body = body;
+  }
+}
+
 class Specialization extends ASTNode {
   constructor(kind, target, location) {
     super('Specialization', location);
@@ -342,6 +361,14 @@ class Parser {
         return this.parseActionDefinition(startLocation);
       }
       return this.parseActionUsage(startLocation);
+    }
+
+    if (this.matchKeyword('requirement')) {
+      this.advance();
+      if (this.matchKeyword('def')) {
+        return this.parseRequirementDefinition(startLocation);
+      }
+      return this.parseRequirementUsage(startLocation);
     }
 
     throw new Error(
@@ -584,6 +611,47 @@ class Parser {
     return new ActionUsage(name, type, specializations, body, startLocation);
   }
 
+  parseRequirementDefinition(startLocation) {
+    this.expect('KEYWORD', 'def');
+    const name = this.expect('IDENTIFIER').value;
+
+    const specializations = this.parseSpecializations();
+
+    let body = [];
+    if (this.match('PUNCTUATION', '{')) {
+      this.advance();
+      body = this.parseBody();
+      this.expect('PUNCTUATION', '}');
+    } else if (this.match('PUNCTUATION', ';')) {
+      this.advance();
+    }
+
+    return new RequirementDefinition(name, specializations, body, startLocation);
+  }
+
+  parseRequirementUsage(startLocation) {
+    const name = this.match('IDENTIFIER') ? this.expect('IDENTIFIER').value : null;
+
+    let type = null;
+    if (this.match('PUNCTUATION', ':')) {
+      this.advance();
+      type = this.parseQualifiedName();
+    }
+
+    const specializations = this.parseSpecializations();
+
+    let body = [];
+    if (this.match('PUNCTUATION', '{')) {
+      this.advance();
+      body = this.parseBody();
+      this.expect('PUNCTUATION', '}');
+    } else if (this.match('PUNCTUATION', ';')) {
+      this.advance();
+    }
+
+    return new RequirementUsage(name, type, specializations, body, startLocation);
+  }
+
   parseSpecializations() {
     const specializations = [];
 
@@ -718,6 +786,8 @@ if (typeof module !== 'undefined' && module.exports) {
     InterfaceDefinition,
     ActionDefinition,
     ActionUsage,
+    RequirementDefinition,
+    RequirementUsage,
     Specialization,
     ImportStatement,
     Comment,
@@ -744,6 +814,8 @@ if (typeof window !== 'undefined') {
   window.InterfaceDefinition = InterfaceDefinition;
   window.ActionDefinition = ActionDefinition;
   window.ActionUsage = ActionUsage;
+  window.RequirementDefinition = RequirementDefinition;
+  window.RequirementUsage = RequirementUsage;
   window.Specialization = Specialization;
   window.ImportStatement = ImportStatement;
   window.Comment = Comment;

@@ -36,6 +36,19 @@ package VehicleExample {
   // Action definition
   action def StartEngine;
 
+  // Requirement definitions
+  requirement def SafetyRequirement;
+
+  requirement def PerformanceRequirement :> SafetyRequirement;
+
+  // Requirement usages
+  requirement vehicleSafety : SafetyRequirement;
+
+  requirement enginePerformance : PerformanceRequirement {
+    attribute minHorsepower : ISQ::power;
+    attribute maxEmissions : Real;
+  }
+
   // Concrete vehicle usage
   part myVehicle : Vehicle {
     part engine : Engine;
